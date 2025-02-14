@@ -19,6 +19,14 @@ mle_solver_bfgs <- function(X, y) {
     # other params
   )
 
+  # Check if optimization has converged
+  if (fit$convergence != 0) {
+    warning(
+      "BFGS did not converge. Convergence code: ", fit$convergence,
+      ". Refer to optim() documentation for more details."
+    )
+  }
+
   return(list(
     coefficients = fit$par,
     value = fit$value,
