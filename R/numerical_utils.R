@@ -11,3 +11,22 @@ lm_neg_log_grad <- function(beta, X, y, noise_var = 1) {
   as.vector(grad_vec)
 }
 
+logistic_neg_log <- function(beta, X, y) {
+  # Return negative log-likelihood of logistic regression
+  eta <- X %*% beta
+  log_likelihood <- sum(y * eta - log1p(exp(eta)))
+  return(-log_likelihood)
+}
+
+logistic_neg_log_grad <- function(beta, X, y) {
+  # Return negative gradient of logistic regression
+  eta <- X %*% beta
+  
+  # Compute probabilities (sigmoid function)
+  p <- 1 / (1 + exp(-eta))
+  
+  # Gradient
+  grad <- t(X) %*% (y - p)
+
+  return(-as.vector(grad))
+}
