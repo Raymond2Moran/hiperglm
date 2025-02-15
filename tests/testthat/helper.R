@@ -40,7 +40,7 @@ simulate_data <- function(
     }
     noise_magnitude <- sqrt(var(expected_mean) / signal_to_noise^2)
     noise <- noise_magnitude * rnorm(n_obs)
-    outcome <- expected_mean + noise 
+    outcome <- expected_mean + noise
   } else {
     n_trial <- option$n_trial
     prob <- 1 / (1 + exp(-expected_mean))
@@ -65,15 +65,15 @@ test_that("newton and bfgs outputs coincide on logit model", {
   outcome <- data$outcome
   via_newton_out <- hiper_glm(design, outcome, model = 'logistic')
   via_bfgs_out <- hiper_glm(
-    design, 
+    design,
     outcome, 
-    model = 'logistic', 
+    model = 'logistic',
     option = list(mle_solver = 'BFGS')
   )
   expect_true(are_all_close(
-    coef(via_newton_out), 
-    coef(via_bfgs_out), 
-    abs_tol = 1e-2, 
+    coef(via_newton_out),
+    coef(via_bfgs_out),
+    abs_tol = 1e-2,
     rel_tol = 1e-2
   ))
 })

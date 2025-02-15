@@ -30,3 +30,16 @@ logit_neg_log_grad <- function(beta, X, y) {
 
   return(-as.vector(grad))
 }
+
+logit_hessian <- function(beta, X, y) {
+  eta <- X %*% beta
+  p <- 1 / (1 + exp(-eta))
+
+  # Compute diagonal weight matrix W
+  W <- diag(as.vector(p * (1 - p)))
+
+  # Compute the Hessian matrix
+  H <- t(X) %*% W %*% X
+
+  return(H)
+}
