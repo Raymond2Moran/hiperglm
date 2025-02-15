@@ -4,7 +4,7 @@ test_that("logistic gradient is consistent with numerical gradient", {
   n_pred <- 3
   X <- matrix(rnorm(n_obs * n_pred), nrow = n_obs, ncol = n_pred)
   beta_true <- rnorm(n_pred)
-  
+
   # Generate binary outcomes using logistic model
   probs <- 1 / (1 + exp(-X %*% beta_true))
   y <- rbinom(n_obs, 1, probs)
@@ -35,7 +35,7 @@ test_that("logistic Hessian is consistent with numerical Hessian", {
   n_pred <- 3
   X <- matrix(rnorm(n_obs * n_pred), nrow = n_obs, ncol = n_pred)
   beta_test <- rnorm(n_pred)
-  
+
   # Generate binary outcomes using logistic model
   probs <- 1 / (1 + exp(-X %*% beta_test))
   y <- rbinom(n_obs, 1, probs)
@@ -46,17 +46,15 @@ test_that("logistic Hessian is consistent with numerical Hessian", {
   # Compute numerical Hessian using finite difference approximation
   eps <- 1e-6
   H_numerical <- matrix(0, n_pred, n_pred)
-  
+
   for (j in 1:n_pred) {
     beta_up <- beta_test
     beta_up[j] <- beta_test[j] + eps
-
     beta_down <- beta_test
     beta_down[j] <- beta_test[j] - eps
-
     grad_up <- logit_neg_log_grad(beta_up, X, y)
     grad_down <- logit_neg_log_grad(beta_down, X, y)
-    
+
     H_numerical[, j] <- (grad_up - grad_down) / (2 * eps)
   }
 

@@ -10,6 +10,7 @@
 #' @param option A list specifying additional options, such as `mle_solver`, which can be:
 #'               - `"linalg"` for the linear algebra solver (linear model only)
 #'               - `"BFGS"` for optimization-based MLE (for both linear and logistic models)
+#'               - `"Newton"` for Newton's method (logistic model only)
 #' @return A list containing the fitted model parameters, including:
 #' \item{coefficients}{Estimated model coefficients}
 #' \item{solver}{Optimization method used}
@@ -23,21 +24,17 @@ hiper_glm <- function(design, outcome, model = "linear", option = list()) {
     solver <- ifelse(model == "linear", "linalg", "BFGS")  # default to BFGS for logistic
   }
 
-  if (model == "linear") {
-    out <- switch(
-      solver,
-      "linalg" = mle_solver_linalg(design, outcome),  # Pseudo-inverse approach
-      "BFGS"   = mle_solver_bfgs(design, outcome),
-      stop("Unsupported solver: ", solver)
-    )
-  } else if (model == "logistic") {
-    if (solver != "BFGS") {
-      stop("Logistic model currently only supports BFGS optimization.")
-    }
-    out <- mle_solver_bfgs_logit(design, outcome)  # MLE via BFGS for logistic
-  } else {
-    stop("Unsupported model type: '", model, "'. Supported models: 'linear', 'logistic'.")
-  }
+  if (model %in% c("linear", "logistic")) {
+  out <- switch(
+    solver,
+    "linalg" = if (model == "linear") mle_solver_linalg(design, outcome) else stop("linalg solver not available for logistic model"),
+    "BFGS"   = if (model == "linear") mle_solver_bfgs(design, outcome) else mle_solver_bfgs_logit(design, outcome),
+    "Newton" = if (model == "logistic") mle_solver_newton_logistic(design, outcome) else stop("Newton solver only available for logistic model"),
+    stop("Unsupported solver: ", solver)
+  )
+} else {
+  stop("Unsupported model type: '", model, "'. Supported models: 'linear', 'logistic'.")
+}
 
   hglm_out <- list(
     model     = model,

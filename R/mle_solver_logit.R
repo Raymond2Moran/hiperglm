@@ -33,3 +33,28 @@ mle_solver_bfgs_logit <- function(X, y) {
     convergence = fit$convergence
   ))
 }
+
+mle_solver_newton_logit <- function(X, y, max_iter = 100) {
+  # Initialize beta as a zero vector
+  beta <- rep(0, ncol(X))
+  
+  for (iter in 1:max_iter) {
+    # Compute gradient and Hessian
+    grad <- logit_neg_log_grad(beta, X, y)   # Gradient
+    H <- logit_hessian(beta, X, y)           # Hessian
+
+    # Solve for Newton update step
+    beta_update <- solve(H, grad)  # Equivalent to H_inv * grad
+
+    # Update beta
+    beta <- beta - beta_update
+
+    # Print progress
+    message("Iteration ", iter, ": ||update|| = ", sqrt(sum(beta_update^2)))
+  }
+
+  return(list(
+    coefficients = beta,
+    iterations = max_iter
+  ))
+}
