@@ -34,10 +34,13 @@ mle_solver_bfgs_logit <- function(X, y) {
   ))
 }
 
-mle_solver_newton_logit <- function(X, y, max_iter = 100) {
+mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_rel = 1e-6) {
   # Initialize beta as a zero vector
   beta <- rep(0, ncol(X))
-  
+
+  # Compute initial log-likelihood
+  ll_old <- -logit_neg_log(beta, X, y)
+
   for (iter in 1:max_iter) {
     # Compute gradient and Hessian
     grad <- logit_neg_log_grad(beta, X, y)   # Gradient
@@ -47,14 +50,32 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100) {
     beta_update <- solve(H, grad)  # Equivalent to H_inv * grad
 
     # Update beta
-    beta <- beta - beta_update
+    beta_new <- beta - beta_update
 
-    # Print progress
-    message("Iteration ", iter, ": ||update|| = ", sqrt(sum(beta_update^2)))
+    # Compute new log-likelihood
+    ll_new <- -logit_neg_log(beta_new, X, y)
+
+    # Compute absolute and relative change in log-likelihood
+    ll_abs_change <- abs(ll_new - ll_old)
+    ll_rel_change <- ll_abs_change / (abs(ll_old) + 1e-10) # Avoid division by 0
+
+    # Check convergence
+    if (ll_abs_change < tol_abs && ll_rel_change < tol_rel) {
+      message("Converged in ", iter, " iterations.")
+      return(list(coefficients = beta_new, iterations = iter, converged = TRUE))
+    }
+
+    # Update beta and log-likelihood for the next iteration
+    beta <- beta_new
+    ll_old <- ll_new
   }
 
-  return(list(
-    coefficients = beta,
-    iterations = max_iter
-  ))
+  message("Reached max iterations without full convergence.")
+  return(
+    list(
+      coefficients = beta,
+      iterations = max_iter,
+      converged = FALSE
+    )
+  )
 }

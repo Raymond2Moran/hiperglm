@@ -15,34 +15,47 @@
 #' \item{coefficients}{Estimated model coefficients}
 #' \item{solver}{Optimization method used}
 #' \item{model}{The type of model fitted}
+#' \item{convergence}{Indicates whether optimization converged (logit)}
 #' 
 #' @export
 hiper_glm <- function(design, outcome, model = "linear", option = list()) {
-  # Extract solver options (default: `linalg` for linear models)
+  # Extract solver option
   solver <- option$mle_solver
   if (is.null(solver)) {
-    solver <- ifelse(model == "linear", "linalg", "BFGS")  # default to BFGS for logistic
+    solver <- ifelse(model == "linear", "linalg", "BFGS")
   }
 
-  if (model %in% c("linear", "logistic")) {
+  # Validate model type
+  if (!model %in% c("linear", "logistic")) {
+    stop("Unsupported model type: '", model, "'. Supported models: 'linear', 'logistic'.")
+  }
+
+  # Select solver
   out <- switch(
     solver,
-    "linalg" = if (model == "linear") mle_solver_linalg(design, outcome) else stop("linalg solver not available for logistic model"),
-    "BFGS"   = if (model == "linear") mle_solver_bfgs(design, outcome) else mle_solver_bfgs_logit(design, outcome),
-    "Newton" = if (model == "logistic") mle_solver_newton_logistic(design, outcome) else stop("Newton solver only available for logistic model"),
+    "linalg" = {
+      if (model == "linear") mle_solver_linalg(design, outcome)
+      else stop("linalg solver not available for logistic model.")
+    },
+    "BFGS" = {
+      if (model == "linear") mle_solver_bfgs(design, outcome)
+      else mle_solver_bfgs_logit(design, outcome)
+    },
+    "Newton" = {
+      if (model == "logistic") mle_solver_newton_logit(design, outcome)
+      else stop("Newton solver only available for logistic model.")
+    },
     stop("Unsupported solver: ", solver)
   )
-} else {
-  stop("Unsupported model type: '", model, "'. Supported models: 'linear', 'logistic'.")
-}
+
 
   hglm_out <- list(
-    model     = model,
-    solver    = solver,
+    model        = model,
+    solver       = solver,
     coefficients = as.numeric(out$coefficients),
-    convergence  = out$convergence
-    # Other options ...
+    convergence  = ifelse(is.null(out$converged), TRUE, out$converged)  # Ensure convergence flag
   )
-  class(hglm_out) <- "hiper_glm" # Make sure it is S3
+
+  class(hglm_out) <- "hiper_glm"  # Assign S3 class
   return(hglm_out)
 }
