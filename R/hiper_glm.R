@@ -6,8 +6,10 @@
 #' @param design A numeric matrix representing the design matrix (predictors).
 #' @param outcome A numeric vector representing the response variable.
 #' @param model A character string specifying the type of model (default: `"linear"`).
-#' @param option A list specifying additional options, such as `mle_solver`, which can be `"linalg"` for the linear algebra solver or `"BFGS"` for optimization-based MLE.
-#'
+#'              Supported models: `"linear"`, `"logistic"`.
+#' @param option A list specifying additional options, such as `mle_solver`, which can be:
+#'               - `"linalg"` for the linear algebra solver (linear model only)
+#'               - `"BFGS"` for optimization-based MLE (for both linear and logistic models)
 #' @return A list containing the fitted model parameters, including:
 #' \item{coefficients}{Estimated model coefficients}
 #' \item{solver}{Optimization method used}
@@ -15,27 +17,33 @@
 #' 
 #' @export
 hiper_glm <- function(design, outcome, model = "linear", option = list()) {
-  # Extract solver options (default `linalg`)
+  # Extract solver options (default: `linalg` for linear models)
   solver <- option$mle_solver
   if (is.null(solver)) {
-    solver <- "linalg"  # default
+    solver <- ifelse(model == "linear", "linalg", "BFGS")  # default to BFGS for logistic
   }
 
   if (model == "linear") {
     out <- switch(
       solver,
-      "linalg" = mle_solver_linalg(design, outcome),  # pseudo-inverse approach
+      "linalg" = mle_solver_linalg(design, outcome),  # Pseudo-inverse approach
       "BFGS"   = mle_solver_bfgs(design, outcome),
       stop("Unsupported solver: ", solver)
     )
+  } else if (model == "logistic") {
+    if (solver != "BFGS") {
+      stop("Logistic model currently only supports BFGS optimization.")
+    }
+    out <- mle_solver_bfgs_logit(design, outcome)  # MLE via BFGS for logistic
   } else {
-    stop("model = '", model, "' not implemented yet.")
+    stop("Unsupported model type: '", model, "'. Supported models: 'linear', 'logistic'.")
   }
 
   hglm_out <- list(
     model     = model,
     solver    = solver,
-    coefficients = as.numeric(out$coefficients)
+    coefficients = as.numeric(out$coefficients),
+    convergence  = out$convergence
     # Other options ...
   )
   class(hglm_out) <- "hiper_glm" # Make sure it is S3

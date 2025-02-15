@@ -12,10 +12,10 @@ test_that("logistic gradient is consistent with numerical gradient", {
   beta_test <- rnorm(n_pred)
 
   # Compute analytical gradient using logistic log-likelihood gradient function
-  g_analytical <- logistic_neg_log_grad(beta_test, X, y)
+  g_analytical <- logit_neg_log_grad(beta_test, X, y)
 
   # Compute numerical gradient using finite difference approximation
-  test_func <- function(b) logistic_neg_log(b, X, y)
+  test_func <- function(b) logit_neg_log(b, X, y)
   g_numerical <- approx_grad(test_func, beta_test)
 
   # Compare analytical vs numerical gradients
