@@ -45,7 +45,7 @@ hiper_glm <- function(design, outcome, model = "linear", option = list()) {
       if (model == "logistic") mle_solver_newton_logit(design, outcome)
       else stop("Newton solver only available for logistic model.")
     },
-    stop("Unsupported solver: ", solver)
+    stop("Unsupported solver: '", solver, "'. Supported solvers: 'linalg', 'BFGS', 'Newton'.")
   )
 
 
@@ -53,7 +53,7 @@ hiper_glm <- function(design, outcome, model = "linear", option = list()) {
     model        = model,
     solver       = solver,
     coefficients = as.numeric(out$coefficients),
-    convergence  = ifelse(is.null(out$converged), TRUE, out$converged)  # Ensure convergence flag
+    convergence  = !is.null(out$converged) && out$converged  # Ensure logical flag
   )
 
   class(hglm_out) <- "hiper_glm"  # Assign S3 class

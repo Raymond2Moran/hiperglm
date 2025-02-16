@@ -46,8 +46,25 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_re
     grad <- logit_neg_log_grad(beta, X, y)   # Gradient
     H <- logit_hessian(beta, X, y)           # Hessian
 
+    # Check if Hessian is singular (ill-conditioned)
+    if (det(H) < 1e-10) {  # Indicates singular matrix
+      warning("Hessian is nearly singular; Newton's method may not converge.")
+      return(list(coefficients = beta, iterations = iter, converged = FALSE))
+    }
+
     # Solve for Newton update step
-    beta_update <- solve(H, grad)  # Equivalent to H_inv * grad
+    beta_update <- tryCatch(
+      solve(H, grad),
+      error = function(e) {
+        warning("Newton's method failed: Singular Hessian.")
+        return(rep(NA, length(beta)))  # Return NA vector
+      }
+    )
+
+    # If solving failed, return early
+    if (any(is.na(beta_update))) {
+      return(list(coefficients = beta, iterations = iter, converged = FALSE))
+    }
 
     # Update beta
     beta_new <- beta - beta_update
@@ -70,12 +87,6 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_re
     ll_old <- ll_new
   }
 
-  message("Reached max iterations without full convergence.")
-  return(
-    list(
-      coefficients = beta,
-      iterations = max_iter,
-      converged = FALSE
-    )
-  )
+  warning("Reached max iterations (", max_iter, ") without convergence. Newton's method may have failed.")
+  return(list(coefficients = beta, iterations = max_iter, converged = FALSE))
 }
