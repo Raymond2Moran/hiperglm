@@ -34,7 +34,7 @@ mle_solver_bfgs_logit <- function(X, y) {
   ))
 }
 
-mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_rel = 1e-6) {
+mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_rel = 1e-6, step_thres = 1e3) {
   # Initialize beta as a zero vector, compute initial log-likelihood
   beta <- rep(0, ncol(X))
   ll_old <- -logit_neg_log(beta, X, y)
@@ -44,8 +44,8 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_re
     H <- logit_hessian(beta, X, y)           # Hessian
 
     # Check if Hessian is singular (ill-conditioned)
-    if (det(H) < 1e-10) {  # Indicates singular matrix
-      warning("Hessian is nearly singular; Newton's method may not converge.")
+    if (min(abs(eigen(H)$values)) < 1e-10) {  # Eigenvalues check for singularity
+      warning("Hessian is nearly singular; possible complete separation. Newton's method may not converge.")
       return(list(coefficients = beta, iterations = iter, converged = FALSE))
     }
 
@@ -63,9 +63,23 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_re
       return(list(coefficients = beta, iterations = iter, converged = FALSE))
     }
 
+    # Check for large step sizes (potential divergence)
+    if (max(abs(beta_update)) > step_thres) {
+      warning("Newton's method is diverging: Step size too large. Possible complete separation.")
+      return(list(coefficients = beta, iterations = iter, converged = FALSE))
+    }
+
     # Update beta, compute new log-likelihood
     beta_new <- beta - beta_update
     ll_new <- -logit_neg_log(beta_new, X, y)
+
+    # Check for complete separation (probabilities too close to 0 or 1)
+    p_hat <- 1 / (1 + exp(-X %*% beta_new))
+    print(p_hat)
+    if (any(p_hat < 1e-10 |p_hat > 1 - 1e-10)) {
+      warning("Perfect separation detected: Coefficients diverging to infinity.")
+      return(list(coefficients = beta, iterations = iter, converged = FALSE))
+    }
 
     # Compute absolute and relative change in log-likelihood
     ll_abs_change <- abs(ll_new - ll_old)
