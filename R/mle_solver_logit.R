@@ -35,14 +35,11 @@ mle_solver_bfgs_logit <- function(X, y) {
 }
 
 mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_rel = 1e-6) {
-  # Initialize beta as a zero vector
+  # Initialize beta as a zero vector, compute initial log-likelihood
   beta <- rep(0, ncol(X))
-
-  # Compute initial log-likelihood
   ll_old <- -logit_neg_log(beta, X, y)
 
   for (iter in 1:max_iter) {
-    # Compute gradient and Hessian
     grad <- logit_neg_log_grad(beta, X, y)   # Gradient
     H <- logit_hessian(beta, X, y)           # Hessian
 
@@ -66,10 +63,8 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_re
       return(list(coefficients = beta, iterations = iter, converged = FALSE))
     }
 
-    # Update beta
+    # Update beta, compute new log-likelihood
     beta_new <- beta - beta_update
-
-    # Compute new log-likelihood
     ll_new <- -logit_neg_log(beta_new, X, y)
 
     # Compute absolute and relative change in log-likelihood

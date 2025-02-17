@@ -11,15 +11,20 @@ hiper_glm(design, outcome, model = "linear", option = list())
 
 \item{outcome}{A numeric vector representing the response variable.}
 
-\item{model}{A character string specifying the type of model (default: \code{"linear"}).}
+\item{model}{A character string specifying the type of model (default: \code{"linear"}).
+Supported models: \code{"linear"}, \code{"logistic"}.}
 
-\item{option}{A list specifying additional options, such as \code{mle_solver}, which can be \code{"linalg"} for the linear algebra solver or \code{"BFGS"} for optimization-based MLE.}
+\item{option}{A list specifying additional options, such as \code{mle_solver}, which can be:
+- \code{"linalg"} for the linear algebra solver (linear model only)
+- \code{"BFGS"} for optimization-based MLE (for both linear and logistic models)
+- \code{"Newton"} for Newton's method (logistic model only)}
 }
 \value{
 A list containing the fitted model parameters, including:
 \item{coefficients}{Estimated model coefficients}
 \item{solver}{Optimization method used}
 \item{model}{The type of model fitted}
+\item{convergence}{Indicates whether optimization converged (logit)}
 }
 \description{
 This function fits a generalized linear model using either a pseudo-inverse
