@@ -57,26 +57,6 @@ simulate_data <- function(
   return(list(design = design, outcome = outcome, coef_true = coef_true))
 }
 
-test_that("newton and bfgs outputs coincide on logit model", {
-  n_obs <- 32
-  n_pred <- 4
-  data <- simulate_data(n_obs, n_pred, model = 'logistic', seed = 1918)
-  design <- data$design
-  outcome <- data$outcome
-  via_newton_out <- hiper_glm(design, outcome, model = 'logistic')
-  via_bfgs_out <- hiper_glm(
-    design,
-    outcome, 
-    model = 'logistic',
-    option = list(mle_solver = 'BFGS')
-  )
-  expect_true(are_all_close(
-    coef(via_newton_out),
-    coef(via_bfgs_out),
-    abs_tol = 1e-2,
-    rel_tol = 1e-2
-  ))
-})
 
 
 approx_grad <- function(func, x, dx = .Machine$double.eps^(1/3)) {
@@ -92,4 +72,21 @@ approx_grad <- function(func, x, dx = .Machine$double.eps^(1/3)) {
     numerical_grad[i] <- (f_next - f_back) / (2 * dx)
   }
   return(numerical_grad)
+}
+
+approx_hessian <- function(beta, X, y, eps = 1e-6) {
+  H_numeric <- matrix(0, length(beta), length(beta))
+
+  for (j in 1:length(beta)) {
+    beta_up <- beta
+    beta_down <- beta
+    beta_up[j] <- beta[j] + eps
+    beta_down[j] <- beta[j] - eps
+
+    grad_up <- logit_neg_log_grad(beta_up, X, y)
+    grad_down <- logit_neg_log_grad(beta_down, X, y)
+
+    H_numeric[, j] <- (grad_up - grad_down) / (2 * eps)
+  }
+  return(H_numeric)
 }

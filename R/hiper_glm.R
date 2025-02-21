@@ -22,7 +22,7 @@ hiper_glm <- function(design, outcome, model = "linear", option = list()) {
   # Extract solver option
   solver <- option$mle_solver
   if (is.null(solver)) {
-    solver <- ifelse(model == "linear", "linalg", "BFGS")
+    solver <- if (model == "linear") "linalg" else "BFGS"
   }
 
   # Validate model type
