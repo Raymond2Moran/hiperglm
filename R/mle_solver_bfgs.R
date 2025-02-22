@@ -1,25 +1,21 @@
-mle_solver_bfgs <- function(X, y) {
-  # MLE via `stats::optim()`'s BFGS
+mle_solver_bfgs <- function(X, y, model = "linear") {
+  if (model == "linear") {
+    nll <- function(beta) lm_neg_log(beta, X, y, noise_var = 1)
+    grad_nll <- function(beta) lm_neg_log_grad(beta, X, y, noise_var = 1)
+  } else if (model == "logistic") {
+    nll <- function(beta) logit_neg_log(beta, X, y)
+    grad_nll <- function(beta) logit_neg_log_grad(beta, X, y)
+  }
 
-  # Negative log-likelihood
-  nll <- function(beta) lm_neg_log(beta, X, y, noise_var = 1)
-
-  # Gradient
-  grad_nll <- function(beta) lm_neg_log_grad(beta, X, y, noise_var = 1)
-
-  # Define initial starting point
   init_param <- rep(0, ncol(X))
 
-  # Perform optimization
   fit <- optim(
     par     = init_param,
     fn      = nll,
     gr      = grad_nll,
     method  = "BFGS"
-    # other params
   )
 
-  # Check if optimization has converged
   if (fit$convergence != 0) {
     warning(
       "BFGS did not converge. Convergence code: ", fit$convergence,

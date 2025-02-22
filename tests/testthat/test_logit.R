@@ -57,15 +57,15 @@ test_that("logistic Hessian is consistent with numerical Hessian", {
 test_that("newton and bfgs outputs coincide on logit model", {
   n_obs <- 32
   n_pred <- 4
-  data <- simulate_data(n_obs, n_pred, model = 'logistic', seed = 1918)
+  data <- simulate_data(n_obs, n_pred, model = "logistic", seed = 1918)
   design <- data$design
   outcome <- data$outcome
-  via_newton_out <- hiper_glm(design, outcome, model = 'logistic')
+  via_newton_out <- hiper_glm(design, outcome, model = "logistic")
   via_bfgs_out <- hiper_glm(
     design,
     outcome, 
-    model = 'logistic',
-    option = list(mle_solver = 'BFGS')
+    model = "logistic",
+    option = list(mle_solver = "BFGS")
   )
   expect_true(are_all_close(
     coef(via_newton_out),

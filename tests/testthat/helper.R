@@ -6,7 +6,7 @@ are_all_close <- function(v, w, abs_tol = 1e-6, rel_tol = 1e-6) {
 }
 
 simulate_data <- function(
-    n_obs, n_pred, model = "linear", intercept = NULL, 
+    n_obs, n_pred, model = "linear", intercept = NULL,
     coef_true = NULL, design = NULL, seed = NULL, option = list()
 ) {
   if (!is.null(seed)) {
@@ -33,7 +33,7 @@ simulate_data <- function(
   }
   expected_mean <- as.vector(design %*% coef_true)
 
-  if (model == 'linear') {
+  if (model == "linear") {
     signal_to_noise <- option$signal_to_noise
     if (is.null(signal_to_noise)) {
       signal_to_noise <- 0.1
@@ -59,7 +59,7 @@ simulate_data <- function(
 
 
 
-approx_grad <- function(func, x, dx = .Machine$double.eps^(1/3)) {
+approx_grad <- function(func, x, dx = .Machine$double.eps^(1 / 3)) {
   numerical_grad <- rep(0, length(x))
   # Fill in
   for (i in seq_along(x)) {
@@ -77,7 +77,7 @@ approx_grad <- function(func, x, dx = .Machine$double.eps^(1/3)) {
 approx_hessian <- function(beta, X, y, eps = 1e-6) {
   H_numeric <- matrix(0, length(beta), length(beta))
 
-  for (j in 1:length(beta)) {
+  for (j in seq_along(beta)) {
     beta_up <- beta
     beta_down <- beta
     beta_up[j] <- beta[j] + eps

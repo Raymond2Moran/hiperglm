@@ -19,41 +19,35 @@
 #' 
 #' @export
 hiper_glm <- function(design, outcome, model = "linear", option = list()) {
-  # Extract solver option
   solver <- option$mle_solver
   if (is.null(solver)) {
     solver <- if (model == "linear") "linalg" else "BFGS"
   }
 
-  # Validate model type
   if (!model %in% c("linear", "logistic")) {
     stop("Unsupported model type: '", model, "'. Supported models: 'linear', 'logistic'.")
   }
 
-  # Select solver
+  available_solvers <- c("linalg", "BFGS", "Newton")
+  if (!solver %in% available_solvers) {
+    stop("Unsupported solver: '", solver, "'. Supported solvers: ",
+         paste(available_solvers, collapse = ", "), ".")
+  }
+
   out <- switch(
     solver,
-    "linalg" = {
-      if (model == "linear") mle_solver_linalg(design, outcome)
-      else stop("linalg solver not available for logistic model.")
-    },
-    "BFGS" = {
-      if (model == "linear") mle_solver_bfgs(design, outcome)
-      else mle_solver_bfgs_logit(design, outcome)
-    },
-    "Newton" = {
-      if (model == "logistic") mle_solver_newton_logit(design, outcome)
-      else stop("Newton solver only available for logistic model.")
-    },
-    stop("Unsupported solver: '", solver, "'. Supported solvers: 'linalg', 'BFGS', 'Newton'.")
+    "linalg" = if (model == "linear") mle_solver_linalg(design, outcome)
+               else stop("linalg solver is only available for the linear model."),
+    "BFGS"   = mle_solver_bfgs(design, outcome, model),
+    "Newton" = if (model == "logistic") mle_solver_newton_logit(design, outcome)
+               else stop("Newton solver is only available for the logistic model.")
   )
-
 
   hglm_out <- list(
     model        = model,
     solver       = solver,
     coefficients = as.numeric(out$coefficients),
-    convergence  = !is.null(out$converged) && out$converged  # Ensure logical flag
+    convergence  = !is.null(out$converged) && out$converged
   )
 
   class(hglm_out) <- "hiper_glm"  # Assign S3 class
