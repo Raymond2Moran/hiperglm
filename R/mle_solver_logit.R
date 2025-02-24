@@ -2,6 +2,7 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_re
   beta <- rep(0, ncol(X))
   ll_old <- -logit_neg_log(beta, X, y)
   converged <- FALSE
+  iter <- 1
 
   while(! converged && iter <= max_iter) {
     grad <- logit_neg_log_grad(beta, X, y)   # Gradient
@@ -52,6 +53,7 @@ mle_solver_newton_logit <- function(X, y, max_iter = 100, tol_abs = 1e-6, tol_re
     # Update beta and log-likelihood for the next iteration
     beta <- beta_new
     ll_old <- ll_new
+    iter <- iter + 1
   }
 
   warning("Reached max iterations (", max_iter, ") without convergence. Newton's method may have failed.")

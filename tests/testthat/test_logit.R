@@ -60,10 +60,11 @@ test_that("newton and bfgs outputs coincide on logit model", {
   data <- simulate_data(n_obs, n_pred, model = "logistic", seed = 1918)
   design <- data$design
   outcome <- data$outcome
-  via_newton_out <- hiper_glm(design, outcome, model = "logistic")
+  via_newton_out <- hiper_glm(design, outcome, model = "logistic",
+                              option = list(mle_solver = "Newton"))
   via_bfgs_out <- hiper_glm(
     design,
-    outcome, 
+    outcome,
     model = "logistic",
     option = list(mle_solver = "BFGS")
   )
