@@ -24,7 +24,33 @@ coef.hiper_glm <- function(hglm_out) {
 #' @return A warning indicating that the function is not yet implemented.
 #' @export
 vcov.hiper_glm <- function(hglm_out) {
-  warning("This function is yet to be implemented.")
+  if (hglm_out$model != "linear") {
+    stop("Variance-covariance matrix is currently only implemented for linear models.")
+  }
+  
+  X <- hglm_out$design
+  y <- hglm_out$outcome
+  beta_hat <- hglm_out$coefficients
+
+  residuals <- y - X %*% beta_hat
+
+  n <- nrow(X)
+  p <- ncol(X)
+
+  sigma2_hat <- sum(residuals^2) / (n - p)
+
+  qr_decomp <- qr(X)
+  R <- qr.R(qr_decomp)
+  R <- R[, order(qr_decomp$pivot)]
+
+  if (!are_all_close(X, qr.Q(qr_decomp) %*% R)) {
+    warning("QR decomposition reconstruction failed. Potential numerical instability.")
+  }
+
+  XtX_inv <- chol2inv(R)
+  vcov_matrix <- sigma2_hat * XtX_inv
+
+  vcov_matrix
 }
 
 #' Print a summary of a hiper_glm object

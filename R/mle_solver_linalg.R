@@ -1,7 +1,10 @@
 mle_solver_linalg <- function(X, y) {
-  # Solve MLE via pseudo-inverse
   # Uses QR factorization and avoids computing inverse
-  
-  beta_hat <- qr.solve(X, y)
-  return(list(coefficients = as.numeric(beta_hat)))
+  qr_decomp <- qr(X)
+  R <- qr.R(qr_decomp)
+  Qty <- qr.qty(qr_decomp, y)
+
+  beta_hat <- backsolve(R, Qty[1:ncol(X)])
+
+  list(coefficients = as.vector(beta_hat))
 }
