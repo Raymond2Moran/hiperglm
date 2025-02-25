@@ -6,5 +6,5 @@ mle_solver_linalg <- function(X, y) {
 
   beta_hat <- backsolve(R, Qty[1:ncol(X)])
 
-  list(coefficients = as.vector(beta_hat))
+  return(list(coefficients = as.vector(beta_hat)))
 }

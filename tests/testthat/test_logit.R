@@ -75,3 +75,27 @@ test_that("newton and bfgs outputs coincide on logit model", {
     rel_tol = 1e-2
   ))
 })
+
+test_that("QR solver and pseudo-inverse solver yield similar Newton steps", {
+  n_obs <- 32
+  n_pred <- 4
+  data <- simulate_data(n_obs, n_pred, model = "logistic", seed = 1918)
+  design <- data$design
+  outcome <- data$outcome
+  beta_test <- rnorm(n_pred)
+
+  step_qr <- take_one_newton_step(beta_test, design, outcome, solver = "QR")
+  step_pseudo_inv <- take_one_newton_step(beta_test, design, outcome, solver = "pseudo-inverse")
+
+  # Compare results
+  expect_true(are_all_close(
+    step_qr$beta_new,
+    step_pseudo_inv$beta_new,
+    abs_tol = 1e-6,
+    rel_tol = 1e-6
+  ), info = sprintf(
+      "QR = %s, Pseudo-inverse = %s",
+      toString(step_qr$beta_new),
+      toString(step_pseudo_inv$beta_new)
+    ))
+})
