@@ -36,6 +36,9 @@ check_coverage <- function(coverage, label, nominal, lower, upper) {
 }
 
 test_that("Confidence intervals achieve nominal coverage with Monte Carlo", {
+  skip_if_not(Sys.getenv("MANUAL_TEST") != "",
+              "Skipping long-running test for confidence interval coverage.")
+
   set.seed(1918)
   n_sim <- 1000
   n_obs <- 100
