@@ -16,7 +16,8 @@
 #' \item{solver}{Optimization method used}
 #' \item{model}{The type of model fitted}
 #' \item{convergence}{Indicates whether optimization converged (logit)}
-#' 
+#' \item{design}{The design matrix used in the model fit}
+#' \item{outcome}{The response variable used in the model fit}
 #' @export
 hiper_glm <- function(design, outcome, model = "linear", option = list()) {
   solver <- option$mle_solver
