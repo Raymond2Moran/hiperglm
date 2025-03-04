@@ -84,14 +84,14 @@ approx_hessian <- function(beta, X, y, eps = 1e-6) {
   return(H_numeric)
 }
 
-simulate_coverage <- function(n_sim, n_obs, n_pred, model, solver_option = NULL) {
+simulate_coverage <- function(n_sim, n_obs, n_pred, model, solver_option = NULL, significance = 0.95) {
 
   if (is.null(solver_option)) {
     solver_option <- if (model == "linear") "linalg" else "BFGS"
   }
 
   coverage <- 0
-  q_crit <- qchisq(0.95, df = n_pred)
+  q_crit <- qchisq(significance, df = n_pred)
 
   for (i in 1:n_sim) {
     data <- simulate_data(n_obs, n_pred, model = model, seed = i)
@@ -113,10 +113,10 @@ simulate_coverage <- function(n_sim, n_obs, n_pred, model, solver_option = NULL)
   return(coverage / n_sim)
 }
 
-check_coverage <- function(coverage, label, nominal, lower, upper) {
+check_coverage <- function(coverage, label, nominal, lower, upper, significance = 0.95) {
   expect_true(
     coverage > lower && coverage < upper,
-    info = sprintf("%s coverage = %.3f, Expected = %.3f, 95%% Monte Carlo Interval: [%.3f, %.3f]",
-                   label, coverage, nominal, lower, upper)
+    info = sprintf("%s coverage = %.3f, Expected = %.3f, %.1f%% Monte Carlo Interval: [%.3f, %.3f]",
+                   label, coverage, nominal, significance * 100, lower, upper)
   )
 }

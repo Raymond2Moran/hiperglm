@@ -6,20 +6,20 @@ test_that("Confidence intervals achieve nominal coverage with Monte Carlo", {
   n_sim <- 1000
   n_obs <- 100
   n_pred <- 3
-  nominal <- 0.95
+  significance <- 0.95 # nominal coverage
 
   covs <- c(
-    "Linear (QR)"    = simulate_coverage(n_sim, n_obs, n_pred, model = "linear", solver_option = "linalg"),
-    "Linear (BFGS)"  = simulate_coverage(n_sim, n_obs, n_pred, model = "linear", solver_option = "BFGS"),
-    "Logit (Newton)" = simulate_coverage(n_sim, n_obs, n_pred, model = "logistic", solver_option = "Newton"),
-    "Logit (BFGS)"   = simulate_coverage(n_sim, n_obs, n_pred, model = "logistic", solver_option = "BFGS")
+    "Linear (QR)"    = simulate_coverage(n_sim, n_obs, n_pred, model = "linear", solver_option = "linalg", significance = significance),
+    "Linear (BFGS)"  = simulate_coverage(n_sim, n_obs, n_pred, model = "linear", solver_option = "BFGS", significance = significance),
+    "Logit (Newton)" = simulate_coverage(n_sim, n_obs, n_pred, model = "logistic", solver_option = "Newton", significance = significance),
+    "Logit (BFGS)"   = simulate_coverage(n_sim, n_obs, n_pred, model = "logistic", solver_option = "BFGS", significance = significance)
   )
 
-  mc_se <- sqrt(nominal * (1 - nominal) / n_sim)
-  lower_bound <- nominal - 1.96 * mc_se
-  upper_bound <- nominal + 1.96 * mc_se
+  mc_se <- sqrt(significance * (1 - significance) / n_sim)
+  lower_bound <- significance - 1.96 * mc_se
+  upper_bound <- significance + 1.96 * mc_se
 
   for (lab in names(covs)) {
-    check_coverage(covs[lab], lab, nominal, lower_bound, upper_bound)
+    check_coverage(covs[lab], lab, significance, lower_bound, upper_bound)
   }
 })
