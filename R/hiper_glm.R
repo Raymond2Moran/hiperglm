@@ -47,7 +47,9 @@ hiper_glm <- function(design, outcome, model = "linear", option = list()) {
     model        = model,
     solver       = solver,
     coefficients = as.numeric(out$coefficients),
-    convergence  = !is.null(out$converged) && out$converged
+    convergence  = !is.null(out$converged) && out$converged,
+    design       = design,
+    outcome      = outcome
   )
 
   class(hglm_out) <- "hiper_glm"  # Assign S3 class
