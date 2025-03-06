@@ -25,6 +25,8 @@ A list containing the fitted model parameters, including:
 \item{solver}{Optimization method used}
 \item{model}{The type of model fitted}
 \item{convergence}{Indicates whether optimization converged (logit)}
+\item{design}{The design matrix used in the model fit}
+\item{outcome}{The response variable used in the model fit}
 }
 \description{
 This function fits a generalized linear model using either a pseudo-inverse
