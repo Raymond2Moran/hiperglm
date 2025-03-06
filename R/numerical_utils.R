@@ -49,13 +49,10 @@ take_one_newton_step <- function(beta, X, y, step_thres = 1e3, solver = "rcpp_QR
   # Solve weighted least squares problem
   if (solver == "rcpp_QR") {
     beta_new <- rcpp_qr_solve(X_weighted, y_weighted)
-  } else if (solver == "QR") {
-    qr_decomp <- qr(X_weighted)
-    beta_new <- qr.solve(qr_decomp, y_weighted)
   } else if (solver == "pseudo-inverse") {
     beta_new <- solve(crossprod(X_weighted), crossprod(X_weighted, y_weighted))
   } else {
-    stop("Unsupported solver type. Use 'rcpp_QR', 'QR', or 'pseudo-inverse'.")
+    stop("Unsupported solver type. Use 'rcpp_QR' or 'pseudo-inverse'.")
   }
 
   # Check for large step sizes (potential divergence)
