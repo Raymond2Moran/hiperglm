@@ -16,8 +16,9 @@ test_that("Confidence intervals achieve nominal coverage with Monte Carlo", {
   )
 
   mc_se <- sqrt(significance * (1 - significance) / n_sim)
-  lower_bound <- significance - 1.96 * mc_se
-  upper_bound <- significance + 1.96 * mc_se
+  z_alpha <- qnorm(1 - (1 - significance)/2)
+  lower_bound <- significance - z_alpha * mc_se
+  upper_bound <- significance + z_alpha * mc_se
 
   for (lab in names(covs)) {
     check_coverage(covs[lab], lab, significance, lower_bound, upper_bound)
