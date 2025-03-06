@@ -45,8 +45,7 @@ vcov.hiper_glm <- function(hglm_out) {
     residuals <- y - X %*% beta_hat
     sigma2_hat <- sum(residuals^2) / (n - p)
 
-    qr_decomp <- qr(X)
-    R <- extract_R_matrix(qr_decomp)
+    R <- rcpp_qr_R(X)
     XtX_inv <- chol2inv(R)
     vcov_matrix <- sigma2_hat * XtX_inv
 
@@ -64,8 +63,7 @@ vcov.hiper_glm <- function(hglm_out) {
     X_weighted <- weight_matrix * X
 
     # QR decomposition of weighted design matrix
-    qr_decomp <- qr(X_weighted)
-    R <- extract_R_matrix(qr_decomp)
+    R <- rcpp_qr_R(X_weighted)
     vcov_matrix <- chol2inv(R)
 
   } else {
