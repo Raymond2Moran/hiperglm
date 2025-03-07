@@ -3,6 +3,13 @@
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
 Eigen::VectorXd rcpp_qr_solve(const Eigen::MatrixXd& X, const Eigen::VectorXd& y) {
+
+    // Check dimensions
+    if (X.rows() != y.rows()) {
+        Rcpp::stop("Dimension mismatch: X has " + std::to_string(X.rows()) +
+                   " rows, y has " + std::to_string(y.rows()) + " rows");
+    }
+    
     HouseholderQR<MatrixXd> qr(X);
     return qr.solve(y);
 }
