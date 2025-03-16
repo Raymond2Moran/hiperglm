@@ -13,24 +13,24 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_qr_solve
-Eigen::VectorXd rcpp_qr_solve(const Eigen::MatrixXd& X, const Eigen::VectorXd& y);
+VectorXd rcpp_qr_solve(const Map<MatrixXd> X, const Map<MatrixXd> y);
 RcppExport SEXP _hiperglm_rcpp_qr_solve(SEXP XSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const Map<MatrixXd> >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const Map<MatrixXd> >::type y(ySEXP);
     rcpp_result_gen = Rcpp::wrap(rcpp_qr_solve(X, y));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_qr_R
-Eigen::MatrixXd rcpp_qr_R(const Eigen::MatrixXd& X);
+MatrixXd rcpp_qr_R(const MatrixXd& X);
 RcppExport SEXP _hiperglm_rcpp_qr_R(SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(rcpp_qr_R(X));
     return rcpp_result_gen;
 END_RCPP
