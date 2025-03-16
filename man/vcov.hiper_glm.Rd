@@ -15,10 +15,11 @@ of the model coefficients.
 }
 \description{
 This function computes the estimated variance-covariance matrix of the
-fitted \code{hiper_glm} model.
+fitted \code{hiper_glm} model using numerically stable methods.
+}
+\details{
 For linear models, it computes \(\hat{\sigma}^2 (X^\top X)^{-1}\) using a QR-based approach.
-For logistic models, it computes the variance-covariance matrix by inverting the observed Fisher information matrix.
-If an alternative Fisher information matrix is provided in the \code{info_mat} element of the model object, that matrix is used;
-otherwise, it is computed using \code{logit_hessian()}. The function employs QR decomposition and a QR-based solver (\code{qr.solve()})
-to improve numerical stability.
+For logistic models, it computes the variance-covariance matrix using a weighted least squares
+approach based on the current parameter estimates. The function employs QR decomposition
+and Cholesky inversion to improve numerical stability.
 }

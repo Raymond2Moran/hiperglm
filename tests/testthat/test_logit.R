@@ -84,7 +84,7 @@ test_that("QR solver and pseudo-inverse solver yield similar Newton steps", {
   outcome <- data$outcome
   beta_test <- rnorm(n_pred)
 
-  step_qr <- take_one_newton_step(beta_test, design, outcome, solver = "QR")
+  step_qr <- take_one_newton_step(beta_test, design, outcome, solver = "rcpp_QR")
   step_pseudo_inv <- take_one_newton_step(beta_test, design, outcome, solver = "pseudo-inverse")
 
   # Compare results

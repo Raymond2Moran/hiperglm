@@ -34,7 +34,7 @@ logit_hessian <- function(beta, X, y) {
   return(H)
 }
 
-take_one_newton_step <- function(beta, X, y, step_thres = 1e3, solver = "QR") {
+take_one_newton_step <- function(beta, X, y, step_thres = 1e3, solver = "rcpp_QR") {
   # Calculate working response and weights
   eta <- X %*% beta
   p_hat <- expit(eta)
@@ -47,13 +47,12 @@ take_one_newton_step <- function(beta, X, y, step_thres = 1e3, solver = "QR") {
   y_weighted <- working_response * W_sqrt
 
   # Solve weighted least squares problem
-  if (solver == "QR") {
-    qr_decomp <- qr(X_weighted)
-    beta_new <- qr.solve(qr_decomp, y_weighted)
+  if (solver == "rcpp_QR") {
+    beta_new <- rcpp_qr_solve(X_weighted, y_weighted)
   } else if (solver == "pseudo-inverse") {
     beta_new <- solve(crossprod(X_weighted), crossprod(X_weighted, y_weighted))
   } else {
-    stop("Unsupported solver type. Use 'QR' or 'pseudo-inverse'.")
+    stop("Unsupported solver type. Use 'rcpp_QR' or 'pseudo-inverse'.")
   }
 
   # Check for large step sizes (potential divergence)
@@ -77,9 +76,4 @@ are_all_close <- function(v, w, abs_tol = 1e-6, rel_tol = 1e-6) {
   are_all_within_atol <- all(abs_diff < abs_tol)
   are_all_within_rtol <- all(abs_diff < rel_tol * pmax(abs(v), abs(w)))
   return(are_all_within_atol && are_all_within_rtol)
-}
-
-extract_R_matrix <- function(qr_decomp) {
-  R <- qr.R(qr_decomp)
-  R[, order(qr_decomp$pivot)]
 }
